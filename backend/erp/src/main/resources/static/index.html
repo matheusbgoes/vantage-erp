@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vantage ERP | Painel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div>
+          <span class="brand-title">Vantage</span>
+          <span class="brand-subtitle">ERP</span>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Menu principal">
+        <a href="#" class="nav-item active">
+          <span class="nav-icon">🏠</span>
+          <span>Visão geral</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">📦</span>
+          <span>Produtos</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">📈</span>
+          <span>Desempenho</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>Configurações</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pill-label">Plano Enterprise</div>
+        <p>Estabilidade e visibilidade para operações críticas.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Dashboard Operacional</p>
+          <h1>Controle de produtos</h1>
+          <p class="page-copy">Visão consolidada de estoque, receita potencial e alertas críticos.</p>
+        </div>
+        <div class="header-actions">
+          <button id="exportCsvButton" class="secondary-button">Exportar CSV</button>
+          <button id="addProductButton" class="primary-button">Adicionar Produto</button>
+        </div>
+      </header>
+
+      <section class="metrics-grid" aria-label="Estatísticas rápidas">
+        <article class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon tone-blue">📦</div>
+            <span class="metric-label">Total de produtos</span>
+          </div>
+          <div class="metric-value" id="totalProducts">--</div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon tone-green">✅</div>
+            <span class="metric-label">Estoque saudável</span>
+          </div>
+          <div class="metric-value" id="healthyStock">--</div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon tone-purple">📊</div>
+            <span class="metric-label">Valor em estoque</span>
+          </div>
+          <div class="metric-value" id="stockValue">--</div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon tone-red">⚠️</div>
+            <span class="metric-label">Alertas críticos</span>
+          </div>
+          <div class="metric-value accent" id="criticalCount">--</div>
+        </article>
+      </section>
+
+      <section class="chart-section">
+        <div class="chart-panel">
+          <div class="chart-panel-heading">
+            <div>
+              <p class="section-label">Saúde do estoque</p>
+              <h2>Estável vs Reposição</h2>
+            </div>
+            <div class="chart-legend">
+              <span><span class="legend-swatch blue"></span>Estável</span>
+              <span><span class="legend-swatch orange"></span>Reposição</span>
+            </div>
+          </div>
+          <div class="chart-visual">
+            <div id="stockHealthChart" class="stock-health-chart"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="data-section">
+        <div class="table-panel">
+          <div class="table-header">
+            <div>
+              <p class="section-label">Produtos</p>
+              <h2>Inventário e status</h2>
+            </div>
+            <p class="section-copy">Mantenha o foco nos itens críticos e nas ações necessárias.</p>
+          </div>
+
+          <div class="table-shell" id="tableShell">
+            <div class="skeleton-table" id="skeletonGrid">
+              <div class="skeleton-row">
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+              </div>
+              <div class="skeleton-row">
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+              </div>
+              <div class="skeleton-row">
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+              </div>
+              <div class="skeleton-row">
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+                <span class="skeleton-cell"></span>
+              </div>
+            </div>
+
+            <table class="product-table" hidden>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Estoque</th>
+                  <th>Preço</th>
+                  <th>Nível mínimo</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="productRows"></tbody>
+            </table>
+
+            <div class="empty-state" id="emptyState" hidden>
+              <div class="empty-icon">🧾</div>
+              <strong>Nenhum produto cadastrado</strong>
+              <p>Comece adicionando itens para visualizar métricas de estoque e alertas automaticamente.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Ação rápida</p>
+          <h2 id="modalTitle">Adicionar produto</h2>
+        </div>
+        <button class="icon-button" id="closeModal">✕</button>
+      </div>
+
+      <form id="productForm" class="product-form">
+        <div class="form-grid">
+          <label>
+            Nome do produto
+            <input name="name" type="text" placeholder="Ex: Cabo HDMI 2m" required />
+          </label>
+          <label>
+            Quantidade em estoque
+            <input name="stockQuantity" type="number" min="0" placeholder="0" required />
+          </label>
+          <label>
+            Preço unitário
+            <input name="price" type="number" min="0.01" step="0.01" placeholder="R$ 119,00" required />
+          </label>
+          <label>
+            Nível mínimo de estoque
+            <input name="minStockLevel" type="number" min="0" placeholder="10" required />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-button" id="cancelForm">Cancelar</button>
+          <button type="submit" class="primary-button">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin defer></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin defer></script>
+  <script src="https://unpkg.com/recharts/umd/Recharts.min.js" crossorigin defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
