@@ -1,121 +1,83 @@
-# Vantage ERP
+# Vantage ERP 🚀
+### Gestão de Inventário Inteligente com IA Preditiva
 
-ERP de alta performance com IA Preditiva.
+O **Vantage ERP** é uma solução Full Stack moderna para controle de estoque, unindo a robustez do ecossistema Java com a agilidade do React. O diferencial do sistema é o módulo **Vantage AI**, que utiliza lógica preditiva para antecipar rupturas de estoque e auxiliar na tomada de decisão do gestor.
 
-![Java](https://img.shields.io/badge/Java-%23232F3E.svg?logo=java&logoColor=white)
-![Spring](https://img.shields.io/badge/Spring-%2366CC66.svg?logo=spring&logoColor=white)
-![React](https://img.shields.io/badge/React-%2361DAFB.svg?logo=react&logoColor=black)
-![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?logo=docker&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-%231B2431.svg?logo=supabase&logoColor=white)
+![Vantage ERP Dashboard](./dashboard.png)
 
-## Showcase
+---
 
-Vantage ERP é um sistema moderno de gestão de estoque, com UX elegante e uma camada de previsão que antecipa rupturas de itens críticos. Ideal para operações que precisam de visibilidade imediata, automação de estoque e implantação ágil em container.
+## 🛠️ Tecnologias Utilizadas
 
-## Tecnologias
+### Backend
+- **Java 21** & **Spring Boot 3**
+- **Spring Data JPA** para persistência
+- **PostgreSQL** (Hospedado no **Supabase**)
+- **Validation API** (Bean Validation)
 
-- Java 26
-- Spring Boot
-- React
-- Tailwind CSS
-- Docker
-- Supabase
+### Frontend
+- **React 18** + **Vite**
+- **Tailwind CSS** (Design System Corporativo)
+- **Axios** para consumo de API
+- **Lucide React** (Iconografia)
+- **Recharts** (Visualização de Dados)
 
-## Destaques Técnicos
+### Infraestrutura
+- **Docker** & **Docker Compose**
+- **Variáveis de Ambiente** (.env) para segurança
 
-- Vantage AI para previsão de ruptura em menos de 7 dias
-- Tratamento global de erros com respostas JSON claras
-- Dockerização completa com `docker-compose`
-- Frontend React moderno com notificações em toast e dashboard de alertas
-- Configuração segura de credenciais via `.env`
+---
 
-## Como rodar
+## ✨ Funcionalidades Principais
 
-Use o script de execução rápida para iniciar todo o sistema no Windows:
+- 📊 **Dashboard SaaS**: Visão consolidada de itens ativos, valor total em estoque e alertas críticos.
+- 🧠 **Vantage AI Insights**: Predição em tempo real de dias restantes para o esgotamento de produtos.
+- 📱 **Interface Responsiva**: Adaptável para Desktop (Tabela) e Mobile (Cards).
+- 🔄 **CRUD Completo**: Gestão total de produtos com validações rigorosas.
+- 📥 **Exportação CSV**: Relatórios rápidos para análise externa.
+- 🏗️ **Foco em UX**: Skeleton loaders, notificações de operação (toasts) e filtros em tempo real.
 
-```bash
-run-project.bat
-```
+---
 
-O backend irá iniciar em `http://localhost:8080` e o frontend em `http://localhost:5173` ou `http://localhost:3000` dependendo do start.
+## 🚀 Como Executar o Projeto
 
-## Docker
+### Pré-requisitos
+- Docker e Docker Compose instalados (Recomendado)
+- Ou Java 21 e Node.js 18+ para execução manual.
 
-O projeto também pode ser iniciado com Docker:
-
-```bash
-docker compose up --build
-```
-
-- Backend: http://localhost:8080
-- Frontend: http://localhost:3000
-
-## Configuração de credenciais
-
-Crie `backend/erp/.env` a partir de `backend/erp/.env.example`.
-
-> Nunca comite credenciais reais do Supabase ou do banco de dados no repositório.
-
-## Como testar validações
-
-- CRUD completo de produtos
-- Validação de campos no backend e frontend
-- Dashboard responsivo com indicadores de estoque
-- Gráficos de saúde de estoque
-- Exportação CSV do inventário
-- Seed de dados inicial para testes
-- Tratamento global de erros com respostas JSON limpas
-- Notificações de toast para operações de produto
-- Persistência de filtro de busca
-- Previsão de ruptura de estoque com IA leve para itens críticos
-- Docker e Docker Compose para backend + frontend em container
-
-## Instalação rápida
-
-1. Instale as dependências do frontend:
+### Via Docker (Recomendado)
+Na raiz do projeto, execute:
 
 ```bash
-cd frontend && npm install
+docker-compose up -d
 ```
 
-2. Execute o backend e o frontend com o script Windows:
+O frontend estará disponível em `http://localhost:5173` e o backend em `http://localhost:8080`.
+
+### Via Script de Automação (Windows)
+Execute o arquivo:
 
 ```bash
-run-project.bat
+./run-project.bat
 ```
 
-## Como rodar
+---
 
-1. Execute o backend:
+## 🛡️ Segurança e Robustez
 
-```bash
-cd backend/erp && ..\mvnw.cmd spring-boot:run
-```
+- **Global Error Handling**: Tratamento de exceções centralizado no backend.
+- **Environment Isolation**: Proteção de credenciais sensíveis via arquivos `.env`.
+- **Database Seeding**: O sistema já inicia com dados fictícios para demonstração imediata.
 
-2. Execute o frontend:
+---
 
-```bash
-cd frontend && npm run dev
-```
+## 👨‍💻 Autor
+Matheus Goés — Desenvolvedor Full Stack especializado em soluções corporativas e inteligência de dados.
 
-O frontend consome a API em `VITE_API_URL=http://localhost:8080/api` definida em `frontend/.env`.
+---
 
-## Docker
-
-O projeto agora inclui suporte a containerização para backend e frontend com `docker-compose`.
-
-```bash
-docker compose up --build
-```
-
-- Backend: http://localhost:8080
-- Frontend: http://localhost:3000
-
-A interface React usa proxy Nginx para encaminhar `/api` ao backend sem necessidade de alteração de CORS.
-
-## Configuração de credenciais
-
-O backend agora carrega as credenciais do banco de dados a partir de variáveis de ambiente ou de um arquivo `.env`.
+## 📸 Como inserir a imagem
+Salve o screenshot do dashboard como `dashboard.png` na raiz do projeto. O README já usa esse arquivo como preview visual.
 
 - Crie `backend/erp/.env` a partir de `backend/erp/.env.example`
 - Não comite suas credenciais reais no repositório
