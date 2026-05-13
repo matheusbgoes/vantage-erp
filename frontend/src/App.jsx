@@ -22,7 +22,9 @@ function App() {
   const [formValues, setFormValues] = useState(initialFormState)
   const nameInputRef = useRef(null)
   const previousApiConnectionLost = useRef(false)
-  const API_URL = import.meta.env.VITE_API_URL || '/api'
+  const viteApiUrl = import.meta.env.VITE_API_URL
+  const API_URL = viteApiUrl || '/api'
+  const isMissingEnv = !viteApiUrl && import.meta.env.PROD
 
   const [predictions, setPredictions] = useState({})
   const [forecastSummary, setForecastSummary] = useState([])
@@ -120,6 +122,23 @@ function App() {
     setLoading(true)
     await fetchProducts()
     await checkApiStatus()
+  }
+
+  if (isMissingEnv) {
+    return (
+      <div className="min-h-screen bg-red-50 text-gray-900 flex items-center justify-center px-4 py-8">
+        <div className="max-w-2xl rounded-3xl border border-red-200 bg-white p-8 shadow-lg">
+          <h1 className="text-2xl font-bold text-red-700">Erro de configuração do ambiente</h1>
+          <p className="mt-4 text-sm text-gray-600">
+            A variável <code className="rounded bg-gray-100 px-2 py-1">VITE_API_URL</code> não está definida.
+            Configure o endpoint do backend no Vercel e redeploy a aplicação.
+          </p>
+          <p className="mt-4 text-sm text-gray-500">
+            Dica: no painel Vercel, adicione <code>VITE_API_URL</code> nas Environment Variables apontando para seu backend Render.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   useEffect(() => {
