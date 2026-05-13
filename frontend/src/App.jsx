@@ -29,6 +29,12 @@ function App() {
   const [predictions, setPredictions] = useState({})
   const [forecastSummary, setForecastSummary] = useState([])
 
+  const devLog = (...args) => {
+    if (import.meta.env.DEV) {
+      console.error(...args)
+    }
+  }
+
   const handleSearchChange = (value) => {
     localStorage.setItem('vantage-erp-search', value)
     setSearch(value)
@@ -53,7 +59,7 @@ function App() {
           const response = await axios.get(`${API_URL}/products/${product.id}/predict`)
           nextPredictions[product.id] = response.data
         } catch (predictionError) {
-          console.error('Falha ao buscar previsão de IA:', predictionError)
+          devLog('Falha ao buscar previsão de IA:', predictionError)
         }
       })
     )
@@ -65,7 +71,7 @@ function App() {
       const response = await axios.get(`${API_URL}/products/forecast-summary`)
       setForecastSummary(response.data ?? [])
     } catch (summaryError) {
-      console.error('Falha ao carregar resumo de previsão:', summaryError)
+      devLog('Falha ao carregar resumo de previsão:', summaryError)
       setForecastSummary([])
     }
   }, [API_URL])
@@ -90,7 +96,7 @@ function App() {
       await axios.get(`${API_URL}/products`, { timeout: 3000 })
       setApiConnectionLost(false)
     } catch (healthError) {
-      console.error('API health check falhou:', healthError)
+      devLog('API health check falhou:', healthError)
       setApiConnectionLost(true)
     }
   }, [API_URL])
@@ -107,7 +113,7 @@ function App() {
       setApiConnectionLost(false)
       return true
     } catch (fetchError) {
-      console.error('Erro ao buscar:', fetchError)
+      devLog('Erro ao buscar:', fetchError)
       const message = getServerErrorMessage(fetchError)
       setError(message || 'Não foi possível carregar os produtos.')
       if (!fetchError.response) setApiConnectionLost(true)
@@ -150,7 +156,7 @@ function App() {
           throw new Error('Falha no carregamento inicial')
         }
       } catch (initialError) {
-        console.error('Erro no carregamento inicial:', initialError)
+        devLog('Erro no carregamento inicial:', initialError)
         setError((prevError) => prevError || 'Erro no carregamento inicial. Tente novamente.')
       }
     })()
@@ -269,7 +275,7 @@ function App() {
       fetchProducts()
       setApiConnectionLost(false)
     } catch (saveError) {
-      console.error('Erro ao salvar:', saveError)
+      devLog('Erro ao salvar:', saveError)
       const message = getServerErrorMessage(saveError) || 'Falha ao salvar o produto.'
       toast.error(message)
       if (!saveError.response) setApiConnectionLost(true)
@@ -286,7 +292,7 @@ function App() {
       fetchProducts()
       setApiConnectionLost(false)
     } catch (deleteError) {
-      console.error('Erro ao deletar:', deleteError)
+      devLog('Erro ao deletar:', deleteError)
       const message = getServerErrorMessage(deleteError) || 'Falha ao deletar o produto.'
       toast.error(message)
       if (!deleteError.response) setApiConnectionLost(true)
