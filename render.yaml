@@ -2,7 +2,8 @@ services:
   - type: web
     name: vantage-erp-backend
     runtime: docker
-    dockerfilePath: backend/erp/Dockerfile
+    dockerContext: backend/erp
+    dockerfilePath: Dockerfile
     plan: free
     envVars:
       - key: SPRING_DATASOURCE_URL
