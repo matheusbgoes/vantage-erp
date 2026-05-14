@@ -1,8 +1,6 @@
 FROM maven:3.10.1-eclipse-temurin-26 as build
 WORKDIR /app
-COPY pom.xml mvnw .
-COPY .mvn .mvn
-COPY src src
+COPY . .
 RUN chmod +x ./mvnw && ./mvnw -B clean package -DskipTests -Dmaven.repo.local=/root/.m2/repository
 
 FROM eclipse-temurin:26-jre-jammy

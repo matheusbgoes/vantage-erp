@@ -2,7 +2,7 @@ services:
   - type: web
     name: vantage-erp-backend
     runtime: docker
-    dockerContext: backend/erp
+    dockerContext: .
     dockerfilePath: Dockerfile
     plan: free
     envVars:
