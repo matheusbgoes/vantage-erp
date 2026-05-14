@@ -1,9 +1,10 @@
-FROM maven:3.10.1-eclipse-temurin-26 as build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN chmod +x ./mvnw && ./mvnw -B clean package -DskipTests -Dmaven.repo.local=/root/.m2/repository
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
 
-FROM eclipse-temurin:26-jre-jammy
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
