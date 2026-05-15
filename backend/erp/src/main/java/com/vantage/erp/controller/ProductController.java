@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vantage.erp.dto.ProductRequestDTO;
+import com.vantage.erp.dto.ProductResponseDTO;
 import com.vantage.erp.model.ForecastPrediction;
-import com.vantage.erp.model.Product;
 import com.vantage.erp.service.ForecastingService;
 import com.vantage.erp.service.ProductService;
 
@@ -36,22 +37,22 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "Get all products", description = "Retrieve a list of all products")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.findAll());
     }
 
     @PostMapping
     @Operation(summary = "Create a new product", description = "Create a new product with the provided details")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
-        Product savedProduct = productService.save(product);
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productRequest) {
+        ProductResponseDTO savedProduct = productService.save(productRequest);
         return ResponseEntity.ok(savedProduct);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a product", description = "Update an existing product by its ID")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product productDetails) {
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO productDetails) {
         try {
-            Product updatedProduct = productService.update(id, productDetails);
+            ProductResponseDTO updatedProduct = productService.update(id, productDetails);
             return ResponseEntity.ok(updatedProduct);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

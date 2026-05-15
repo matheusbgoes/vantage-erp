@@ -1,5 +1,6 @@
 package com.vantage.erp.config;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
 
         Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
         body.put("status", status.value());
         body.put("error", "Validação de entrada falhou");
         body.put("messages", ex.getBindingResult().getFieldErrors().stream()
@@ -40,6 +42,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
         Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Validação de entrada falhou");
         body.put("messages", ex.getConstraintViolations().stream()
@@ -51,6 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
         body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
         body.put("error", "Método HTTP não suportado");
         body.put("message", ex.getMessage());
@@ -60,6 +64,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("error", "Erro interno do servidor");
         body.put("message", "Ocorreu um problema ao processar a solicitação.");
