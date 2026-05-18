@@ -130,23 +130,6 @@ function App() {
     await checkApiStatus()
   }
 
-  if (isMissingEnv) {
-    return (
-      <div className="min-h-screen bg-red-50 text-gray-900 flex items-center justify-center px-4 py-8">
-        <div className="max-w-2xl rounded-3xl border border-red-200 bg-white p-8 shadow-lg">
-          <h1 className="text-2xl font-bold text-red-700">Erro de configuração do ambiente</h1>
-          <p className="mt-4 text-sm text-gray-600">
-            A variável <code className="rounded bg-gray-100 px-2 py-1">VITE_API_URL</code> não está definida.
-            Configure o endpoint do backend no Vercel e redeploy a aplicação.
-          </p>
-          <p className="mt-4 text-sm text-gray-500">
-            Dica: no painel Vercel, adicione <code>VITE_API_URL</code> nas Environment Variables apontando para seu backend Render.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   useEffect(() => {
     void (async () => {
       try {
@@ -217,6 +200,23 @@ function App() {
     () => products.filter((p) => p.stockQuantity <= p.minStockLevel).length,
     [products]
   )
+
+  if (isMissingEnv) {
+    return (
+      <div className="min-h-screen bg-red-50 text-gray-900 flex items-center justify-center px-4 py-8">
+        <div className="max-w-2xl rounded-3xl border border-red-200 bg-white p-8 shadow-lg">
+          <h1 className="text-2xl font-bold text-red-700">Erro de configuração do ambiente</h1>
+          <p className="mt-4 text-sm text-gray-600">
+            A variável <code className="rounded bg-gray-100 px-2 py-1">VITE_API_URL</code> não está definida.
+            Configure o endpoint do backend no Vercel e redeploy a aplicação.
+          </p>
+          <p className="mt-4 text-sm text-gray-500">
+            Dica: no painel Vercel, adicione <code>VITE_API_URL</code> nas Environment Variables apontando para seu backend Render.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const openCreateModal = () => {
     setModalMode('create')
@@ -312,7 +312,7 @@ function App() {
         <aside className="hidden lg:flex w-72 shrink-0 flex-col border-r border-gray-200 bg-white">
           <div className="px-8 py-10">
             <div className="space-y-1">
-              <h1 className="text-3xl font-bold font-serif text-gray-900">Vantage</h1>
+              <h1 className="text-3xl font-sans font-bold tracking-tight text-slate-900">Vantage</h1>
               <p className="text-sm text-gray-500">Gestão inteligente de estoque</p>
             </div>
           </div>

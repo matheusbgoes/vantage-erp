@@ -53,7 +53,7 @@ public class ProductService {
      * @return ProductResponseDTO of the saved product
      */
     public ProductResponseDTO save(ProductRequestDTO productRequest) {
-        logger.info("Salvando novo produto: nome='{}', estoque={}, preço={}", productRequest.getName(), productRequest.getStockQuantity(), productRequest.getPrice());
+        logger.info("Salvando novo produto: nome='{}', estoque={}, preço={}", productRequest.name(), productRequest.stockQuantity(), productRequest.price());
         Product product = toEntity(productRequest);
         Product savedProduct = productRepository.save(product);
         return toResponseDTO(savedProduct);
@@ -93,10 +93,10 @@ public class ProductService {
      */
     private Product toEntity(ProductRequestDTO dto) {
         Product product = new Product();
-        product.setName(dto.getName());
-        product.setStockQuantity(dto.getStockQuantity());
-        product.setPrice(dto.getPrice());
-        product.setMinStockLevel(dto.getMinStockLevel());
+        product.setName(dto.name());
+        product.setStockQuantity(dto.stockQuantity());
+        product.setPrice(dto.price());
+        product.setMinStockLevel(dto.minStockLevel());
         return product;
     }
 
@@ -106,13 +106,13 @@ public class ProductService {
      * @return ProductResponseDTO
      */
     private ProductResponseDTO toResponseDTO(Product product) {
-        return ProductResponseDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .stockQuantity(product.getStockQuantity())
-                .price(product.getPrice())
-                .minStockLevel(product.getMinStockLevel())
-                .createdAt(product.getCreatedAt())
-                .build();
+        return new ProductResponseDTO(
+                product.getId(),
+                product.getName(),
+                product.getStockQuantity(),
+                product.getPrice(),
+                product.getMinStockLevel(),
+                product.getCreatedAt()
+        );
     }
 }

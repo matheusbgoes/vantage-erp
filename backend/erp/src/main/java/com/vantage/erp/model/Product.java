@@ -2,6 +2,7 @@ package com.vantage.erp.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -15,13 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "products")
 public class Product {
@@ -51,4 +46,101 @@ public class Product {
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private OffsetDateTime createdAt;
+
+    public Product() {
+    }
+
+    public Product(String name, Integer stockQuantity, BigDecimal price, Integer minStockLevel) {
+        this.name = name;
+        this.stockQuantity = stockQuantity;
+        this.price = price;
+        this.minStockLevel = minStockLevel;
+    }
+
+    public Product(Long id, String name, Integer stockQuantity, BigDecimal price, Integer minStockLevel, OffsetDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.stockQuantity = stockQuantity;
+        this.price = price;
+        this.minStockLevel = minStockLevel;
+        this.createdAt = createdAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public Integer getMinStockLevel() {
+        return minStockLevel;
+    }
+
+    public void setMinStockLevel(Integer minStockLevel) {
+        this.minStockLevel = minStockLevel;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id) &&
+               Objects.equals(name, product.name) &&
+               Objects.equals(stockQuantity, product.stockQuantity) &&
+               Objects.equals(price, product.price) &&
+               Objects.equals(minStockLevel, product.minStockLevel) &&
+               Objects.equals(createdAt, product.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, stockQuantity, price, minStockLevel, createdAt);
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", stockQuantity=" + stockQuantity +
+                ", price=" + price +
+                ", minStockLevel=" + minStockLevel +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

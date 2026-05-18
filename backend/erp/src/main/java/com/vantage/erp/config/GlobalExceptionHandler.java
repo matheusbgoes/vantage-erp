@@ -51,14 +51,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now());
-        body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
+        body.put("status", status.value());
         body.put("error", "Método HTTP não suportado");
         body.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(body);
+        return new ResponseEntity<>(body, headers, status);
     }
 
     @ExceptionHandler(Exception.class)
