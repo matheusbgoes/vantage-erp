@@ -19,6 +19,32 @@ The script starts:
 
 The application already seeds demo products on startup, so reviewers can test the dashboard without creating data manually.
 
+## Product Screens
+
+### Dashboard
+
+The main dashboard shows product KPIs, stock health, critical alerts, and the Vantage AI prediction for products close to depletion.
+
+![Vantage ERP dashboard](docs/screenshots/inicio.png)
+
+### Inventory
+
+The inventory view tracks recent stock movements, separating inbound and outbound operations for operational visibility.
+
+![Vantage ERP inventory movements](docs/screenshots/inventario.png)
+
+### Sales
+
+The sales view summarizes orders, revenue, paid transactions, and recent commercial activity.
+
+![Vantage ERP sales dashboard](docs/screenshots/vendas.png)
+
+### Add Product
+
+The product modal keeps creation and editing focused, with validation-ready fields for price, quantity, and minimum stock.
+
+![Vantage ERP add product modal](docs/screenshots/adicionar-novo-produto.png)
+
 ## Why It Matters
 
 Most inventory systems only show what is already happening. Vantage ERP also highlights what is about to happen.
