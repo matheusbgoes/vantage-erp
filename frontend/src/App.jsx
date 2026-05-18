@@ -20,6 +20,10 @@ function App() {
   const [modalMode, setModalMode] = useState('create')
   const [editingProduct, setEditingProduct] = useState(null)
   const [formValues, setFormValues] = useState(initialFormState)
+  const [activeView, setActiveView] = useState('dashboard')
+  const [inventoryMovements, setInventoryMovements] = useState([])
+  const [sales, setSales] = useState([])
+  const [secondaryLoading, setSecondaryLoading] = useState(false)
   const nameInputRef = useRef(null)
   const previousApiConnectionLost = useRef(false)
   const viteApiUrl = import.meta.env.VITE_API_URL
@@ -123,6 +127,25 @@ function App() {
     }
   }, [API_URL, getServerErrorMessage, loadPredictions, loadForecastSummary])
 
+  const fetchSecondaryData = useCallback(async () => {
+    setSecondaryLoading(true)
+    try {
+      const [inventoryResponse, salesResponse] = await Promise.all([
+        axios.get(`${API_URL}/inventory`),
+        axios.get(`${API_URL}/sales`),
+      ])
+      setInventoryMovements(inventoryResponse.data ?? [])
+      setSales(salesResponse.data ?? [])
+      setApiConnectionLost(false)
+    } catch (secondaryError) {
+      devLog('Falha ao carregar inventário/vendas:', secondaryError)
+      if (!secondaryError.response) setApiConnectionLost(true)
+      toast.error('Não foi possível carregar Inventário ou Vendas.')
+    } finally {
+      setSecondaryLoading(false)
+    }
+  }, [API_URL])
+
   const handleRetry = async () => {
     setError(null)
     setLoading(true)
@@ -134,6 +157,7 @@ function App() {
     void (async () => {
       try {
         const success = await fetchProducts()
+        await fetchSecondaryData()
         await checkApiStatus()
         if (!success) {
           throw new Error('Falha no carregamento inicial')
@@ -143,7 +167,7 @@ function App() {
         setError((prevError) => prevError || 'Erro no carregamento inicial. Tente novamente.')
       }
     })()
-  }, [fetchProducts, checkApiStatus])
+  }, [fetchProducts, fetchSecondaryData, checkApiStatus])
 
   useEffect(() => {
     if (modalOpen && nameInputRef.current) {
@@ -201,6 +225,26 @@ function App() {
     [products]
   )
 
+  const inventoryEntryCount = useMemo(
+    () => inventoryMovements.filter((movement) => movement.type === 'ENTRY').length,
+    [inventoryMovements]
+  )
+
+  const inventoryExitCount = useMemo(
+    () => inventoryMovements.filter((movement) => movement.type === 'EXIT').length,
+    [inventoryMovements]
+  )
+
+  const salesTotal = useMemo(
+    () => sales.reduce((acc, sale) => acc + Number(sale.total ?? 0), 0),
+    [sales]
+  )
+
+  const paidSalesCount = useMemo(
+    () => sales.filter((sale) => sale.status === 'PAID').length,
+    [sales]
+  )
+
   if (isMissingEnv) {
     return (
       <div className="min-h-screen bg-red-50 text-gray-900 flex items-center justify-center px-4 py-8">
@@ -248,6 +292,40 @@ function App() {
       style: 'currency',
       currency: 'BRL',
     })
+
+  const formatDepletionDays = (value) => {
+    if (value === undefined || value === null) return 'carregando...'
+    return Number(value) === 1 ? '1 dia' : `${value} dias`
+  }
+
+  const formatDate = (value) =>
+    value
+      ? new Date(value).toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '-'
+
+  const navButtonClass = (view) =>
+    `flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium transition ${
+      activeView === view
+        ? 'bg-gradient-to-r from-teal-50 to-blue-50 text-gray-900'
+        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+    }`
+
+  const pageTitle = {
+    dashboard: 'Seus produtos',
+    inventory: 'Movimentações de estoque',
+    sales: 'Vendas recentes',
+  }[activeView]
+
+  const pageEyebrow = {
+    dashboard: 'Gerenciamento',
+    inventory: 'Inventário',
+    sales: 'Comercial',
+  }[activeView]
 
   const isValidName = formValues.name.trim().length >= 3
   const isValidPrice = Number(formValues.price) > 0
@@ -317,13 +395,13 @@ function App() {
             </div>
           </div>
           <nav className="flex-1 px-6 py-8 space-y-2">
-            <button type="button" className="flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-teal-50 to-blue-50 px-4 py-3 text-gray-900 font-medium hover:from-teal-100 hover:to-blue-100 transition">
+            <button type="button" onClick={() => setActiveView('dashboard')} className={navButtonClass('dashboard')}>
               <LayoutDashboard size={18} className="text-teal-600" /> Dashboard
             </button>
-            <button type="button" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition">
+            <button type="button" onClick={() => setActiveView('inventory')} className={navButtonClass('inventory')}>
               <Package size={18} /> Inventário
             </button>
-            <button type="button" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition">
+            <button type="button" onClick={() => setActiveView('sales')} className={navButtonClass('sales')}>
               <DollarSign size={18} /> Vendas
             </button>
           </nav>
@@ -340,13 +418,14 @@ function App() {
             <div className="mx-auto flex max-w-7xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-4">
                 <div className="rounded-xl bg-gradient-to-br from-teal-600 to-blue-600 p-3 text-white shadow-lg shadow-teal-200">
-                  <LayoutDashboard size={22} />
+                  {activeView === 'sales' ? <DollarSign size={22} /> : activeView === 'inventory' ? <Package size={22} /> : <LayoutDashboard size={22} />}
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Gerenciamento</p>
-                  <h2 className="mt-1 text-2xl font-bold text-gray-900">Seus produtos</h2>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{pageEyebrow}</p>
+                  <h2 className="mt-1 text-2xl font-bold text-gray-900">{pageTitle}</h2>
                 </div>
               </div>
+              {activeView === 'dashboard' && (
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="relative w-full sm:w-80">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -365,10 +444,13 @@ function App() {
                   <Plus size={18} /> Adicionar
                 </button>
               </div>
+              )}
             </div>
           </div>
 
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            {activeView === 'dashboard' && (
+            <>
             {forecastSummary.length > 0 && (
               <div className="mb-6 rounded-3xl border border-yellow-200 bg-yellow-50 px-4 py-4 text-sm text-yellow-900 shadow-sm flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -490,7 +572,7 @@ function App() {
                                 </span>
                                 {critical && (
                                   <p className="mt-2 text-xs text-teal-700">
-                                    IA Insight: {predictions[product.id]?.estimatedDaysToDepletion ?? 'carregando...'} dias
+                                    IA Insight: {formatDepletionDays(predictions[product.id]?.estimatedDaysToDepletion)}
                                   </p>
                                 )}
                               </td>
@@ -532,7 +614,7 @@ function App() {
                                 {critical ? 'Crítico' : 'Estável'}
                               </span>
                               {critical && (
-                                <p className="mt-2 text-[10px] text-teal-700">IA Insight: {predictions[product.id]?.estimatedDaysToDepletion ?? 'carregando...'} dias</p>
+                                <p className="mt-2 text-[10px] text-teal-700">IA Insight: {formatDepletionDays(predictions[product.id]?.estimatedDaysToDepletion)}</p>
                               )}
                             </div>
                           </div>
@@ -561,6 +643,130 @@ function App() {
                 </div>
               </div>
             </section>
+            </>
+            )}
+
+            {activeView === 'inventory' && (
+              <section className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Movimentações</p>
+                    <p className="mt-4 text-4xl font-bold text-gray-900">{inventoryMovements.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Entradas</p>
+                    <p className="mt-4 text-4xl font-bold text-green-600">{inventoryEntryCount}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Saídas</p>
+                    <p className="mt-4 text-4xl font-bold text-red-600">{inventoryExitCount}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 bg-white shadow-elegant overflow-hidden">
+                  <div className="border-b border-gray-200 px-6 py-5">
+                    <h3 className="text-lg font-bold text-gray-900">Últimas movimentações</h3>
+                    <p className="mt-1 text-sm text-gray-500">Dados carregados de /api/inventory via proxy do Vite</p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-700">
+                      <thead className="border-b border-gray-200 bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Produto</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Tipo</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Quantidade</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Motivo</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Data</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {secondaryLoading ? (
+                          <tr><td colSpan="5" className="py-16 text-center text-gray-400">Carregando inventário...</td></tr>
+                        ) : inventoryMovements.length === 0 ? (
+                          <tr><td colSpan="5" className="py-16 text-center text-gray-400">Nenhuma movimentação encontrada.</td></tr>
+                        ) : (
+                          inventoryMovements.map((movement) => (
+                            <tr key={movement.id} className="hover:bg-gray-50 transition">
+                              <td className="px-6 py-4 font-semibold text-gray-900">{movement.productName}</td>
+                              <td className="px-6 py-4">
+                                <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase ${movement.type === 'ENTRY' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                  {movement.type === 'ENTRY' ? 'Entrada' : 'Saída'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">{movement.quantity} un.</td>
+                              <td className="px-6 py-4">{movement.reason}</td>
+                              <td className="px-6 py-4">{formatDate(movement.createdAt)}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activeView === 'sales' && (
+              <section className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pedidos</p>
+                    <p className="mt-4 text-4xl font-bold text-gray-900">{sales.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Faturamento</p>
+                    <p className="mt-4 text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">{formatCurrency(salesTotal)}</p>
+                  </div>
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-elegant">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos</p>
+                    <p className="mt-4 text-4xl font-bold text-green-600">{paidSalesCount}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 bg-white shadow-elegant overflow-hidden">
+                  <div className="border-b border-gray-200 px-6 py-5">
+                    <h3 className="text-lg font-bold text-gray-900">Histórico de vendas</h3>
+                    <p className="mt-1 text-sm text-gray-500">Dados carregados de /api/sales via proxy do Vite</p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-700">
+                      <thead className="border-b border-gray-200 bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Código</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Produto</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Quantidade</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Total</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Status</th>
+                          <th className="px-6 py-3 font-semibold text-gray-900">Data</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {secondaryLoading ? (
+                          <tr><td colSpan="6" className="py-16 text-center text-gray-400">Carregando vendas...</td></tr>
+                        ) : sales.length === 0 ? (
+                          <tr><td colSpan="6" className="py-16 text-center text-gray-400">Nenhuma venda encontrada.</td></tr>
+                        ) : (
+                          sales.map((sale) => (
+                            <tr key={sale.id} className="hover:bg-gray-50 transition">
+                              <td className="px-6 py-4 font-semibold text-gray-900">{sale.code}</td>
+                              <td className="px-6 py-4">{sale.productName}</td>
+                              <td className="px-6 py-4">{sale.quantity} un.</td>
+                              <td className="px-6 py-4 font-semibold">{formatCurrency(sale.total)}</td>
+                              <td className="px-6 py-4">
+                                <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase ${sale.status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                  {sale.status === 'PAID' ? 'Pago' : 'Pendente'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">{formatDate(sale.soldAt)}</td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+            )}
           </div>
         </main>
       </div>

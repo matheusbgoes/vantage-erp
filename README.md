@@ -1,94 +1,124 @@
-# Vantage ERP 🚀
-### Gestão de Inventário Inteligente com IA Preditiva
+# Vantage ERP
 
-O **Vantage ERP** é uma solução Full Stack moderna para controle de estoque, unindo a robustez do ecossistema Java com a agilidade do React. O diferencial do sistema é o módulo **Vantage AI**, que utiliza lógica preditiva para antecipar rupturas de estoque e auxiliar na tomada de decisão do gestor.
+Vantage ERP is a full stack inventory management platform built to feel like a real SaaS product: fast to run, easy to evaluate, and structured with production concerns in mind.
 
-![Vantage ERP Dashboard](./dashboard.png)
+It combines a Java 21 + Spring Boot 3.3 backend with a React + Vite frontend, delivering product management, inventory visibility, sales monitoring, validation, API error handling, and predictive stock insights through the Vantage AI module.
 
----
+## Zero Friction Demo
 
-## 🛠️ Tecnologias Utilizadas
+On Windows, run the whole stack with one command:
+
+```bash
+./start-all.bat
+```
+
+The script starts:
+
+- Backend: `http://localhost:8080`
+- Frontend: `http://localhost:5173`
+
+The application already seeds demo products on startup, so reviewers can test the dashboard without creating data manually.
+
+## Why It Matters
+
+Most inventory systems only show what is already happening. Vantage ERP also highlights what is about to happen.
+
+The Vantage AI feature analyzes current stock versus minimum stock levels and estimates how many days remain before a product runs out. For example, if the Monitor 4K is already below the safe threshold, the dashboard surfaces an alert such as "1 dia" instead of leaving the manager to discover the risk manually.
+
+That turns the product from a CRUD screen into a decision-support tool for purchasing, stock replenishment, and operational planning.
+
+## Architecture
 
 ### Backend
-- **Java 21** & **Spring Boot 3**
-- **Spring Data JPA** para persistência
-- **PostgreSQL** (Hospedado no **Supabase**)
-- **Validation API** (Bean Validation)
+
+- Java 21
+- Spring Boot 3.3
+- Spring Web
+- Spring Data JPA
+- Bean Validation
+- H2 for local development
+- PostgreSQL/Supabase-ready production profile
+- Java Records for lightweight API response DTOs
+- Centralized exception handling with `@RestControllerAdvice`
+- OpenAPI/Swagger documentation support
 
 ### Frontend
-- **React 18** + **Vite**
-- **Tailwind CSS** (Design System Corporativo)
-- **Axios** para consumo de API
-- **Lucide React** (Iconografia)
-- **Recharts** (Visualização de Dados)
 
-### Infraestrutura
-- **Docker** & **Docker Compose**
-- **Variáveis de Ambiente** (.env) para segurança
+- React
+- Vite
+- Tailwind CSS
+- Axios
+- Lucide React icons
+- Vite dev proxy from `/api` to `http://localhost:8080`
+- Responsive dashboard with desktop tables and mobile cards
 
----
+### Runtime Profiles
 
-## ✨ Funcionalidades Principais
+The backend is split by Spring profile:
 
-- 📊 **Dashboard SaaS**: Visão consolidada de itens ativos, valor total em estoque e alertas críticos.
-- 🧠 **Vantage AI Insights**: Predição em tempo real de dias restantes para o esgotamento de produtos.
-- 📱 **Interface Responsiva**: Adaptável para Desktop (Tabela) e Mobile (Cards).
-- 🔄 **CRUD Completo**: Gestão total de produtos com validações rigorosas.
-- 📥 **Exportação CSV**: Relatórios rápidos para análise externa.
-- 🏗️ **Foco em UX**: Skeleton loaders, notificações de operação (toasts) e filtros em tempo real.
+- `application-dev.properties`: local H2 setup, no `.env` required
+- `application-prod.properties`: PostgreSQL/Supabase setup through environment variables
+- `application.properties`: defaults to `spring.profiles.active=dev`
 
----
+For production, provide:
 
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-- Docker e Docker Compose instalados (Recomendado)
-- Ou Java 21 e Node.js 18+ para execução manual.
-
-### Via Docker (Recomendado)
-Na raiz do projeto, execute:
-
-```bash
-docker-compose up -d
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://...
+SPRING_DATASOURCE_USERNAME=...
+SPRING_DATASOURCE_PASSWORD=...
 ```
 
-O frontend estará disponível em `http://localhost:5173` e o backend em `http://localhost:8080`.
+## Main Features
 
-### Via Script de Automação (Windows)
-Execute o arquivo:
+- Product CRUD with validation
+- Stock health dashboard
+- Critical inventory alerts
+- Vantage AI stock depletion forecast
+- Inventory movements view
+- Sales dashboard view
+- API connection health feedback
+- User-friendly error messages and toast notifications
+- One-command local startup
+
+## API Overview
+
+- `GET /api/products`
+- `POST /api/products`
+- `PUT /api/products/{id}`
+- `DELETE /api/products/{id}`
+- `GET /api/products/{id}/predict`
+- `GET /api/products/forecast-summary`
+- `GET /api/inventory`
+- `GET /api/sales`
+
+Inventory and Sales currently return intentional MVP mock data. The controllers are marked with TODO comments to make the technical debt explicit and ready for the next production sprint, where those endpoints should be backed by JPA repositories.
+
+## Manual Setup
+
+### Backend
 
 ```bash
-./run-project.bat
+cd backend/erp
+./mvnw spring-boot:run
 ```
 
----
+### Frontend
 
-## 🛡️ Segurança e Robustez
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-- **Global Error Handling**: Tratamento de exceções centralizado no backend.
-- **Environment Isolation**: Proteção de credenciais sensíveis via arquivos `.env`.
-- **Database Seeding**: O sistema já inicia com dados fictícios para demonstração imediata.
+The frontend can call the API through `/api` locally because Vite proxies requests to the Spring Boot server.
 
----
+## Validation Checklist
 
-## 👨‍💻 Autor
-Matheus Goés — Desenvolvedor Full Stack especializado em soluções corporativas e inteligência de dados.
+- Try creating a product with an invalid name.
+- Try setting a negative price or stock quantity.
+- Reduce a product below its minimum stock level and watch the critical state appear.
+- Open Inventory and Sales from the sidebar to confirm the secondary views load through the API.
 
----
+## Author
 
-## 📸 Como inserir a imagem
-Salve o screenshot do dashboard como `dashboard.png` na raiz do projeto. O README já usa esse arquivo como preview visual.
-
-- Crie `backend/erp/.env` a partir de `backend/erp/.env.example`
-- Não comite suas credenciais reais no repositório
-
-O frontend também suporta `frontend/.env` com `VITE_API_URL`.
-
-## Como testar validações
-
-- Tente cadastrar um produto com preço negativo
-- Tente cadastrar um produto com quantidade de estoque negativa
-- Tente cadastrar um produto sem nome
-- Tente editar um produto para reduzir o estoque abaixo do mínimo e observe o alerta visual
-
-Esses cenários devem exibir mensagens de erro claras e impedir o envio de dados inválidos.
+Matheus Goes - Full Stack Developer focused on business software, data-driven workflows, and pragmatic product engineering.
